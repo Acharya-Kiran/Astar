@@ -1,0 +1,16 @@
+Problem Statement category,
+1. identify objects and anomalies on Indian roads using India’s traffic images
+- potholes on roads
+- road encroachments 
+2. assess the quality of road infrastructure based on satellite imaging
+- lane width
+- pedestrian space
+- cycling lanes 
+- tracks
+
+
+Further enhancements:
+- to confirm to the road conditions, accelerometer data can also act as an input for pothole detection
+
+
+
