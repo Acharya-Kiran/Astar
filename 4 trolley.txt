@@ -1,0 +1,54 @@
+def new_state_transition(current_state,goal,speed):
+    next_states = []
+    velocity_list = angular_velocity_augmentation(0, 10,np.deg2rad(5),np.deg2rad(40),np.deg2rad(-40))
+    #delta_angles = delta_augmentation( delta=current_state.steer, numbers=NUMBERS_OF_STEERS,offset=STEER_OFFSET)
+    DT=1.0/speed
+    for delta in velocity_list:
+        VR=(2*speed + delta*LENGTH)/2*RADIUS_OF_WHEEL
+        VL=(2*speed - delta*LENGTH)/2*RADIUS_OF_WHEEL
+        #omega=RADIUS_OF_WHEEL/LENGTH*(VR-VL)
+        theta = normalize_theta(current_state.theta + (delta * DT))
+        dX = speed * np.cos(theta) * DT
+        dY = speed * np.sin(theta) * DT
+        #print(dX,dY)
+        
+        
+        x    = current_state.x + dX
+        y    = current_state.y + dY
+        g2     = current_state.g + np.sqrt(dX*dX + dY*dY)
+        
+        
+       
+        #Trolley1
+        t1=current_state.theta1+speed/current_state.d1 * math.sin(theta-current_state.theta1)
+        x1=x -current_state.d1*math.cos(t1)
+        y1=y-current_state.d1*math.sin(t1)
+        
+        
+        #Trolley2 
+        t2=current_state.theta2 + speed/current_state.d1 *math.cos(current_state.theta-current_state.theta1)* math.sin(current_state.theta1-current_state.theta2)
+        x2=x1 -current_state.d1*math.cos(t2)
+        y2=y1-current_state.d1*math.sin(t2)
+        
+
+        
+        #Trolley3
+        t3=current_state.theta3 + speed/current_state.d1 *(math.cos(current_state.theta-current_state.theta1) + math.cos(current_state.theta1-current_state.theta2))* math.sin(current_state.theta1-current_state.theta2)
+        x3=x2 -current_state.d1*math.cos(t3)
+        y3=y2-current_state.d1*math.sin(t3)
+        
+        
+        #Trolley4
+        t4=current_state.theta4 + speed/current_state.d1 *(math.cos(current_state.theta2-current_state.theta3) + math.cos(current_state.theta-current_state.theta1) + math.cos(current_state.theta1-current_state.theta2))* math.sin(current_state.theta1-current_state.theta2)
+        x4=x3 -current_state.d1*math.cos(t4)
+        y4=y3-current_state.d1*math.sin(t4)
+        
+        
+        arc_cost=arc_heuristic(goal.x-x,goal.y-y,theta)
+        startpoint = [current_state.x,current_state.y]
+        endpoint = [goal.x, goal.y]
+        h2=value_map[idx(x)][idx(y)]+arc_cost
+        f2     = g2 + h2
+        new_state=state(x,y,theta,g2,f2,h2,delta,delta,x1,y1,t1,x2,y2,t2,x3,y3,t3,x4,y4,t4)
+        next_states.append(new_state)
+    return next_states
